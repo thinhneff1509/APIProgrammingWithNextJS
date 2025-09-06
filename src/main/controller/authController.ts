@@ -10,7 +10,7 @@ export class AuthController {
         private readonly cfg: ConfigService,
     ) {}
 
-    // Bitrix gọi endpoint này khi CÀI/REINSTALL app (POST form-urlencoded)
+    // Bitrix call endpoint when INSTALL/REINSTALL app
     @All('install')
     async install(
         @Body() body: any,
@@ -18,16 +18,18 @@ export class AuthController {
         @Res() res: Response,
     ) {
         try {
-            console.log('[install] body=', body);
-            console.log('[install] query=', query);
-            // --- Case A: Kiểu mới: body.AUTH.{access_token, refresh_token, expires_in}
+            // log debug
+            // console.log('[install] body=', body);
+            // console.log('[install] query=', query);
+
+            // --- Case A: New type: body.AUTH.{access_token, refresh_token, expires_in}
             const a = body?.AUTH ?? body?.auth;
             if (a?.access_token) {
                 await this.auth.setTokens(a.access_token, a.refresh_token, Number(a.expires_in ?? 3600));
                 return res.send('Installed: tokens saved from AUTH.*');
             }
 
-            // --- Case B: Kiểu Local App cũ: AUTH_ID / REFRESH_ID / AUTH_EXPIRES
+            // --- Case B: Local App type: AUTH_ID / REFRESH_ID / AUTH_EXPIRES
             if (body?.AUTH_ID) {
                 await this.auth.setTokens(
                     String(body.AUTH_ID),
@@ -37,7 +39,7 @@ export class AuthController {
                 return res.send('Installed: tokens saved from AUTH_ID/REFRESH_ID.');
             }
 
-            // --- Case C: OAuth code flow (ít gặp với Local App)
+            // --- Case C: OAuth code flow
             const code = body?.code ?? query?.code;
             if (code) {
                 const redirectUri = `${this.cfg.getOrThrow('PUBLIC_URL')}/install`;

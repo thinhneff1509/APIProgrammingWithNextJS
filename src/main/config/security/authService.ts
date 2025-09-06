@@ -53,4 +53,14 @@ export class AuthService {
     async setTokens(access: string, refresh: string, expiresIn: number) {
         await this.tokens.setTokens(access, refresh, expiresIn);
     }
+
+    async getValidAccessToken(): Promise<string> {
+        const saved = await this.tokens.load();
+        if (!saved.access_token || !saved.expires_at || saved.expires_at <= Date.now()) {
+            const d = await this.refreshToken();
+            return d.access_token;
+        }
+        return saved.access_token;
+    }
+
 }
