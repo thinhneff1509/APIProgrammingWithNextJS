@@ -1,0 +1,19 @@
+# Thư mục node_modules
+node_modules/
+
+# File môi trường
+.env
+
+# Thư mục build, dist
+dist/
+build/
+
+# File log
+*.log
+
+# File hệ thống
+.DS_Store
+Thumbs.db
+
+# Token 
+src/config/token/tokens.json
